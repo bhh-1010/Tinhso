@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tìm biểu thức = 67</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f4f4f4; }
+    input[type=number] { width: 50px; }
+    .grid { display: grid; grid-template-columns: repeat(5, auto); gap: 10px; }
+    .results { white-space: pre-line; background: white; padding: 10px; margin-top: 20px; border-radius: 10px; }
+  </style>
+</head>
+<body>
+
+<h2>🔢 Tạo biểu thức ra 67</h2>
+
+<form id="form">
+  <h3>📌 Số lượng các số:</h3>
+  <div class="grid">
+    <div>Số 0: <input type="number" min="0" value="1" id="digit0"></div>
+    <div>Số 1: <input type="number" min="0" value="1" id="digit1"></div>
+    <div>Số 2: <input type="number" min="0" value="1" id="digit2"></div>
+    <div>Số 3: <input type="number" min="0" value="1" id="digit3"></div>
+    <div>Số 4: <input type="number" min="0" value="1" id="digit4"></div>
+    <div>Số 5: <input type="number" min="0" value="1" id="digit5"></div>
+    <div>Số 6: <input type="number" min="0" value="1" id="digit6"></div>
+    <div>Số 7: <input type="number" min="0" value="1" id="digit7"></div>
+    <div>Số 8: <input type="number" min="0" value="1" id="digit8"></div>
+    <div>Số 9: <input type="number" min="0" value="1" id="digit9"></div>
+  </div>
+
+  <h3>🧮 Số lượng các dấu:</h3>
+  <label>+ <input type="number" min="0" value="1" id="plus"></label>
+  <label>- <input type="number" min="0" value="1" id="minus"></label>
+  <label>× <input type="number" min="0" value="1" id="times"></label>
+  <label>÷ <input type="number" min="0" value="1" id="divide"></label>
+
+  <br><br>
+  <button type="submit">🔍 Tìm biểu thức = 67</button>
+</form>
+
+<div class="results" id="results"></div>
+
+<script>
+  const form = document.getElementById('form');
+  form.onsubmit = function(e) {
+    e.preventDefault();
+    const digits = [];
+    for (let i = 0; i <= 9; i++) {
+      let count = parseInt(document.getElementById('digit' + i).value);
+      for (let j = 0; j < count; j++) digits.push(i);
+    }
+
+    const ops = [];
+    for (let i = 0; i < parseInt(document.getElementById('plus').value); i++) ops.push('+');
+    for (let i = 0; i < parseInt(document.getElementById('minus').value); i++) ops.push('-');
+    for (let i = 0; i < parseInt(document.getElementById('times').value); i++) ops.push('*');
+    for (let i = 0; i < parseInt(document.getElementById('divide').value); i++) ops.push('/');
+
+    const resultBox = document.getElementById('results');
+    resultBox.innerText = '⏳ Đang tính...';
+
+    // Chạy sau 100ms để cập nhật DOM trước khi xử lý lâu
+    setTimeout(() => {
+      const results = new Set();
+
+      // Chọn 4 số và 3 dấu để thử
+      function* permute(arr, n) {
+        if (n === 0) yield [];
+        else {
+          for (let i = 0; i < arr.length; i++) {
+            let newArr = arr.slice();
+            let elem = newArr.splice(i, 1)[0];
+            for (let sub of permute(newArr, n - 1)) yield [elem, ...sub];
+          }
+        }
+      }
+
+      for (let nums of permute(digits, 4)) {
+        for (let opset of permute(ops, 3)) {
+          const expr = `${nums[0]}${opset[0]}${nums[1]}${opset[1]}${nums[2]}${opset[2]}${nums[3]}`;
+          try {
+            let val = eval(expr.replace(/\/|\\/, '/')); // chia
+            if (Math.abs(val - 67) < 1e-6) {
+              results.add(`${expr.replace(/\*/g, '×').replace(/\//g, '÷')} = 67`);
+            }
+          } catch { }
+        }
+      }
+
+      if (results.size === 0) {
+        resultBox.innerText = '❌ Không tìm thấy biểu thức nào ra 67.';
+      } else {
+        resultBox.innerText = [...results].join('\n');
+      }
+    }, 100);
+  };
+</script>
+
+</body>
+</html>
